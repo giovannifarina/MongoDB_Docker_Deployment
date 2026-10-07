@@ -1,8 +1,8 @@
-version: '3.8'
 services:
   mongodb:
     image: mongo:latest
     container_name: mongodb
+    hostname: mongodb
     ports:
       - "27017:27017"
     volumes:
@@ -10,6 +10,28 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
+
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile.jupyter
+    hostname: jupyter
+    container_name: jupyter
+    working_dir: /app
+    command: start-notebook.py --IdentityProvider.token='' --ServerApp.password=''
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./datasets:/app/datasets
+      - ./notebooks:/app/notebooks
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - MONGO_USER=root
+      - MONGO_PASSWORD=example
+    depends_on:
+      - mongodb
 
 volumes:
   mongodb_data:
